@@ -146,9 +146,9 @@
 
   "__________LOGIN": "THIS IS LOGIN PLACE",
   "do_not_have_account": "หากยังไม่มีบัญชี?",
+  "required_username": "โปรดระบุชื่อผู้ใช้",
   "sign_in": "เข้าสู่ระบบ",
   "username": "ชื่อผู้ใช้",
-  "required_username": "โปรดระบุชื่อผู้ใช้",
   "username_tel": "ชื่อผู้ใช้/เบอร์โทรศัพท์",
 
   "__________LOGOUT": "THIS IS LOGOUT PLACE",
@@ -215,9 +215,12 @@
   "__________REGISTER": "THIS IS REGISTER PLACE",
   "register": "สมัครสมาชิก",
   "register_already_account": "มีบัญชีอยู่แล้ว?",
+  "register_captcha": "Captcha โค้ด",
+  "register_captcha_require": "โปรดระบุรหัสผ่าน captcha",
   "register_new_otp": "ขอ OTP ใหม่",
   "register_now": "สมัครเลย",
   "register_otp": "ระบุหมายเลข OTP",
+  "register_phone_already": "เบอร์โทรศัพท์นี้มีในระบบแล้ว",
   "register_phone_exceed": "เบอร์โทรศัพท์ต้องมีอย่างน้อย 10 ตัว",
   "register_phone_least": "เบอร์โทรศัพท์จะต้องไม่เกิน 20 ตัว",
   "register_phone_must_be_only_numbers": "เบอร์โทรศัพท์จะต้องเป็นตัวเลขเท่านั้น",
@@ -228,6 +231,7 @@
   "register_step2": "2. ยืนยันรหัส OTP",
   "register_step3": "3. สมัครสมาชิกสำเร็จ",
   "register_user_already": "ชื่อผู้ใช้งานนี้มีในระบบแล้ว",
+  "register_username_require": "ชื่อผู้ใช้ต้องมีความยาว 4-16 ตัวอักษร โดยต้องประกอบด้วย ตัวอักษร (a-z) และตัวเลข (0-9)",
   "register_welcome": "ยินดีต้อนรับ",
 
   "__________REWORD": "THIS IS REWORD PLACE",

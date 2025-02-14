@@ -36,9 +36,9 @@ export const useRecommendList = async () => {
 }
 
 export const useCaptcha = async () => {
-  const { code, message } = await services.getCaptcha()
+  const { code, data, message } = await services.getCaptcha()
   if (!code || code != '0') return { status: false, data: undefined, message }
-  return { status: true, message }
+  return { status: true, data, message }
 }
 
 export const useUserValidate = async (body: RequestUser) => {

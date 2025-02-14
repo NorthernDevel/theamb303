@@ -29,73 +29,10 @@
           />
         </div>
         <template v-if="registerStore.currentStep === 0">
-          <UForm
-            class="mt-6"
-            :state="registerStore.stateOne"
-            :schema="registerStore.stateOneSchema"
-            @submit.prevent="registerStore.requestOtp"
-            autocomplete="off"
-          >
-            <AppFormGroup
-              :label="$t('username_tel')"
-              :required="true"
-              name="username"
-            >
-              <UInput
-                icon="i-heroicons-user"
-                type="text"
-                size="lg"
-                inputmode="numeric"
-                v-model="registerStore.stateOne.username"
-                autofocus
-              />
-            </AppFormGroup>
-
-            <AppFormGroup
-              :label="$t('password')"
-              :required="true"
-              name="password"
-            >
-              <UButtonGroup size="lg" orientation="horizontal" class="w-full">
-                <UInput
-                  icon="i-heroicons-key"
-                  :type="
-                    passwordVisibility.isPasswordVisible.value
-                      ? 'text'
-                      : 'password'
-                  "
-                  v-model="registerStore.stateOne.password"
-                  class="grow"
-                />
-                <UButton
-                  :icon="passwordVisibility.icon.value"
-                  color="gray"
-                  class="rounded-none rounded-r-md -me-2.5"
-                  @click="passwordVisibility.togglePasswordVisibility"
-                />
-              </UButtonGroup>
-            </AppFormGroup>
-
-            <AppFormGroup
-              :label="$t('register_recommend')"
-              :required="true"
-              name="recommend"
-            >
-              <USelectMenu
-                size="lg"
-                v-model="registerStore.stateOne.recommend"
-                :options="registerStore.recommendNames"
-              />
-            </AppFormGroup>
-
-            <UButton
-              type="submit"
-              class="login-btn w-full h-12 justify-center rounded-full text-lg font-light"
-              :loading="registerStore.isLoading"
-              :disabled="registerStore.isLoading"
-              >{{ $t('btn_submit') }}</UButton
-            >
-          </UForm>
+          <RegisterOtpPhoneShort
+            v-if="resourceStore.registerType === 'OTP_PHONE_SHORT'"
+          />
+          <RegisterUserByPhone v-if="resourceStore.registerType === 'USER_BY_PHONE'" />
         </template>
 
         <template v-if="registerStore.currentStep === 1">
@@ -200,10 +137,10 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
+const resourceStore = useResourceStore()
 const popupStore = usePopupStore()
 const authStore = useAuthStore()
 const registerStore = useRegisterStore()
-const passwordVisibility = usePasswordVisibility()
 
 const props = defineProps({
   modelValue: Boolean,

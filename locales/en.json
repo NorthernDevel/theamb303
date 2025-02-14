@@ -145,9 +145,9 @@
 
   "__________LOGIN": "THIS IS LOGIN PLACE",
   "do_not_have_account": "Don't have an account?",
+  "required_username": "Please enter the username.",
   "sign_in": "Sign In",
   "username": "Username",
-  "required_username": "Please enter the username.",
   "username_tel": "Username/Phone number",
 
   "__________LOGOUT": "THIS IS LOGOUT PLACE",
@@ -214,9 +214,12 @@
   "__________REGISTER": "THIS IS REGISTER PLACE",
   "register": "Register",
   "register_already_account": "Already have an account?",
+  "register_captcha": "Captcha code",
+  "register_captcha_require": "Please enter captcha password.",
   "register_new_otp": "Request a new OTP",
   "register_now": "Register",
   "register_otp": "Please enter the OTP number.",
+  "register_phone_already": "This phone number already exists.",
   "register_phone_exceed": "Phone number must not exceed 20 digits.",
   "register_phone_least": "Phone number must have at least 10 digits.",
   "register_phone_must_be_only_numbers": "Phone number must be only numbers.",
@@ -226,7 +229,8 @@
   "register_step1": "1. Fill out the registration information.",
   "register_step2": "2. Confirm the OTP code.",
   "register_step3": "3. Registration successful.",
-  "register_user_already": "This username already exists in the system.",
+  "register_user_already": "This username already exists.",
+  "register_username_require": "Username must be 4-16 characters long and must include letters (a-z) and numbers (0-9).",
   "register_welcome": "Welcome",
 
   "__________REWORD": "THIS IS REWORD PLACE",

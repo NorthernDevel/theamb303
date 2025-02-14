@@ -2,7 +2,7 @@ export interface ResoucesData {
   _id: string
   info: InfoSetting
   contacts: ContactData[]
-  registerType: string
+  registerType: RegisterTypes
   tags: string[]
   theme: string
   announcement: Announcement
@@ -13,6 +13,13 @@ export interface ResoucesData {
   createAt: Date
   updatedAt: Date
 }
+
+export type RegisterTypes =
+  | 'OTP_PHONE_SHORT'
+  | 'OTP_REQUIRE_BANK'
+  | 'CAPTCHA_NO_PHONE'
+  | 'CAPTCHA_REQUIRE_BANK'
+  | 'USER_BY_PHONE'
 
 export interface Announcement {
   display: DisplayData

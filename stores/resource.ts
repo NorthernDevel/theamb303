@@ -7,6 +7,7 @@ import type {
   FooterDescription,
   InfoSetting,
   ResoucesData,
+  RegisterTypes,
 } from '~/models/resource.model'
 
 interface NewBankList {
@@ -76,6 +77,11 @@ export const useResourceStore = defineStore('resourceStore', () => {
     },
   })
 
+  const registerType = computed((): RegisterTypes => {
+    if (!resources.value) return 'OTP_PHONE_SHORT'
+    return resources.value.registerType
+  })
+
   const contacts = computed((): ContactData[] => {
     if (!resources.value) return []
     return resources.value.contacts
@@ -141,6 +147,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
     footerDescription,
     bannerImages,
     promotionImages,
+    registerType,
     tags,
     apkFile,
     getResoures,
