@@ -38,7 +38,6 @@
               icon="i-heroicons-user"
               type="text"
               size="lg"
-              inputmode="numeric"
               autofocus
               autocomplete
               v-model="state.username"
