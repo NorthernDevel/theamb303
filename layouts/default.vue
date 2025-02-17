@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'production') {
   useHead({
     script: [
       {
-        src: 'https://www.googletagmanager.com/gtag/js?id=G-CV4MQDLXN8',
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-ZM4WRQBY25',
         async: true,
       },
       {
@@ -59,7 +59,7 @@ if (process.env.NODE_ENV === 'production') {
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'G-CV4MQDLXN8');
+        gtag('config', 'G-ZM4WRQBY25');
       `,
       },
     ],
