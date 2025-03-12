@@ -10,50 +10,37 @@
         </div>
 
         <UButton
-          v-if="affiliateData?.credit !== undefined"
+          v-if="affiliateData?.credit && affiliateData.minWithdraw"
           icon="i-heroicons-banknotes"
           size="sm"
           class="mt-4 mb-2 login-btn rounded-full"
-          :disabled="affiliateData?.credit === 0"
+          :disabled="
+            affiliateData.credit != 0 &&
+            affiliateData.minWithdraw > affiliateData.credit
+          "
+          @click="getDepositAffiliate()"
           >{{ $t('withdraw_wallet') }}</UButton
         >
       </div>
-    </div>
-
-    <div class="flex flex-col items-center justify-center w-full">
-      <UTabs
-        v-model="activeTab"
-        :items="historyCreditList"
-        class="w-full mt-4"
-      />
-      <MultipleTransaction :channel="TransactionChannel.AFFILIATE" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { PreviewTakeAffiliateCreditData } from '~/models/affiliate.model'
-import { TransactionChannel } from '~/models/transactions.model';
 
 const { t } = useI18n()
 const { useCurrency } = useFormatter()
 const popupStore = usePopupStore()
 
+const emit = defineEmits(['activeTab'])
 const isLoading = ref(false)
-const activeTab = ref<number>(0)
 const affiliateData = ref<PreviewTakeAffiliateCreditData>()
 const totalRecord = ref(0)
-const historyCreditList = [
-  {
-    name: 'receive',
-    label: t('history_short'),
-    icon: 'i-heroicons-clock',
-  },
-]
 
 const credit = computed(() => {
   let rawCredit = 0
-  if(affiliateData.value && affiliateData.value.credit) {
+  if (affiliateData.value && affiliateData.value.credit) {
     rawCredit = affiliateData.value.credit
   }
   const { currency } = useCurrency(rawCredit)
@@ -71,9 +58,31 @@ const getCredit = async () => {
     } else {
       if (data && data.credit) {
         affiliateData.value = data
+        console.log(data)
       } else {
         affiliateData.value = undefined
       }
+    }
+  } catch (e) {
+    popupStore.toastError({ message: (e as Error).message })
+    console.error((e as Error).message)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const getDepositAffiliate = async () => {
+  try {
+    isLoading.value = true
+    const { status, message } = await useDepositAffiliate()
+    if (!status) {
+      popupStore.alertError({ message: message })
+    } else {
+      popupStore.alertSuccess({
+        title: t('successfull'),
+        message: message,
+        onConfirm: () => emit('activeTab', 1),
+      })
     }
   } catch (e) {
     popupStore.toastError({ message: (e as Error).message })

@@ -23,6 +23,8 @@
   "transactions": "Transactions",
   "table_header_trans_no": "No",
   "table_header_trans_date": "Date",
+  "table_header_trans_amount": "Amount",
+  "table_header_trans_type": "Type",
   "start_after_end": "Start date must not be after end date.",
   "start_date": "Start Date",
   "end_date": "End Date",
@@ -30,6 +32,9 @@
   "maximum_withdrawal": "Withdrawal",
   "valid_period": "Valid Period",
   "signup_referral": "Sign-ups via referral",
+  "win_lose": "win/lose",
+  "deposit_short": "Deposite",
+  "withdraw_short": "Withdraw",
 
   "__________BONUS": "THIS IS BONUS PLACE",
   "bonus_status_pending": "Pending",

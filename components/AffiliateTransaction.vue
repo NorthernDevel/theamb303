@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center">
-    <h3 class="text-2xl mb-4">{{ $t('transactions') }}</h3>
+    <h3 class="text-2xl mb-4">{{ $t('affiliate_menus_reports') }}</h3>
   </div>
   <div class="w-full flex items-center justify-between gap-4">
     <div class="flex flex-col w-1/2">
@@ -44,63 +44,63 @@
     </div>
   </div>
 
-  <div class="mt-5 w-full">
-    <UTable
-      :columns="columns"
-      :empty-state="{
-        icon: 'i-heroicons-circle-stack-20-solid',
-        label: $t('data_not_found'),
-      }"
-      :loading-state="{
-        icon: 'i-heroicons-arrow-path-20-solid',
-        label: 'Loading...',
-      }"
-      class="border-2 border-gray-200 dark:border-gray-500 w-full bg-gray-100 dark:bg-gray-800 rounded-lg"
-    >
-      <template #default>
-        <tr v-for="(transaction, index) in transactions" :key="index">
-          <td>{{ index + 1 }}</td>
-          <td>{{ transaction.child }}</td>
-          <td>{{ transaction.createdDate }}</td>
-        </tr>
-      </template>
-    </UTable>
-    <div
-      class="flex justify-center px-3 py-3.5 border-t border-gray-200 dark:border-gray-700"
-    >
-      <UPagination
-        v-model="page"
-        :page-count="pageCount"
-        :total="totalRecord"
-        :ui="{
-          rounded: 'first-of-type:rounded-s-md last-of-type:rounded-e-md',
-        }"
-        :active-button="{ color: 'gray' }"
-      >
-        <template #prev="{ onClick }">
-          <UTooltip :text="$t('previous_page')">
-            <UButton
-              icon="i-heroicons-arrow-small-left-20-solid"
-              color="gray"
-              :ui="{ rounded: 'rounded-full' }"
-              class="rtl:[&_span:first-child]:rotate-180 me-2"
-              @click="onClick"
-            />
-          </UTooltip>
-        </template>
+  <div class="w-full px-2">
+    <div class="md:max-h-[55vh] overflow-y-auto">
+      <section v-if="!isLoading">
+        <div v-if="totalRecord > 0">
+          <div
+            v-for="(item, key) in transactions"
+            :key="key"
+            class="grid grid-cols-3 py-4 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
+          >
+            <div class="flex items-center justify-between space-x-1 col-span-2">
+              <div class="flex flex-col text-sm">
+                <div class="text-gray-900 dark:text-gray-100">
+                  {{ item.child }}
+                </div>
+                <div class="text-gray-500 dark:text-gray-400 text-xs">
+                  {{ dayjs(item.createdDate).format('YYYY-MM-DD HH:mm:ss') }}
+                </div>
+              </div>
 
-        <template #next="{ onClick }">
-          <UTooltip :text="$t('next_page')">
-            <UButton
-              icon="i-heroicons-arrow-small-right-20-solid"
-              color="gray"
-              :ui="{ rounded: 'rounded-full' }"
-              class="rtl:[&_span:last-child]:rotate-180 ms-2"
-              @click="onClick"
-            />
-          </UTooltip>
-        </template>
-      </UPagination>
+              <div class="text-sm">
+                <span v-if="item.type === 'WIN_LOSE'">{{ t('win_lose') }}</span>
+                <span v-else-if="item.type === 'DEPOSIT'">{{
+                  t('deposit_short')
+                }}</span>
+                <span v-else-if="item.type === 'WITHDRAW'">{{
+                  t('withdraw_short')
+                }}</span>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center justify-end text-sm"
+              :class="{
+                'text-green-500': item.value > 0,
+                'text-gray-900': item.value === 0,
+                'text-red-500': item.value < 0,
+              }"
+            >
+              {{ item.value }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-else
+          class="py-4 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100"
+        >
+          <div class="flex justify-center gap-1">
+            <UIcon name="i-heroicons-circle-stack-solid" class="w-4 h-4" />
+            <p class="text-sm">{{ $t('data_not_found') }}</p>
+          </div>
+        </div>
+      </section>
+
+      <section v-else>
+        <USkeleton class="h-10 w-full mb-2" v-for="i in 5" :key="i" />
+      </section>
     </div>
   </div>
 </template>
@@ -115,11 +115,6 @@ import dayjs from 'dayjs'
 const { t } = useI18n()
 const popupStore = usePopupStore()
 
-const columns = [
-  { key: 'no', label: t('table_header_trans_no') },
-  { key: 'username', label: t('username') },
-  { key: 'date', label: t('table_header_trans_date') },
-]
 const transactions = ref<RecordReportTarnsection[]>([])
 const isLoading = ref(false)
 const page = ref(1)

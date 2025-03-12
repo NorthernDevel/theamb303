@@ -24,6 +24,8 @@
   "transactions": "รายการแนะนำ",
   "table_header_trans_no": "ที่",
   "table_header_trans_date": "วันที่",
+  "table_header_trans_amount": "จำนวน",
+  "table_header_trans_type": "ประเภท",
   "start_after_end": "วันที่เริ่มต้นไม่ควรมากกว่าวันที่สิ้นสุด",
   "start_date": "วันที่เริ่มต้น",
   "end_date": "วันที่สิ้นสุด",
@@ -31,6 +33,9 @@
   "maximum_withdrawal": "ถอนสูงสุด",
   "valid_period": "ระยะเวลาที่รับได้",
   "signup_referral": "จำนวนผู้ที่สมัครผ่านลิงค์แนะนำ",
+  "win_lose": "ชนะ/แพ้",
+  "deposit_short": "ฝาก",
+  "withdraw_short": "ถอน",
 
   "__________BONUS": "THIS IS BONUS PLACE",
   "bonus_status_pending": "รอดำเนินการ",

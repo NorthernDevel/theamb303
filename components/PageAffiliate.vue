@@ -3,30 +3,61 @@
     <div class="flex flex-col items-center justify-center mb-5">
       <h3 class="text-2xl mb-4">{{ $t('menu_affiliate') }}</h3>
       <div
-        class="border-2 border-gray-200 mb-8 dark:border-gray-500 bg-gray-100 dark:bg-gray-800 w-full rounded-lg p-2 pt-4mt-2">
+        class="border-2 border-gray-200 mb-8 dark:border-gray-500 bg-gray-100 dark:bg-gray-800 w-full rounded-lg p-2 pt-4mt-2"
+      >
         <AppFormGroup :label="$t('share_affiliate')" name="linkAffiliate">
-          <UInput icon="i-heroicons-link" :type="'text'" class="grow leading-6" v-model="affiliateLink" readonly />
+          <UInput
+            icon="i-heroicons-link"
+            :type="'text'"
+            class="grow leading-6"
+            v-model="affiliateLink"
+            readonly
+          />
         </AppFormGroup>
-        <div class="dark:text-yellow-400 text-center my-4 text-xs"><span class="dark:text-amber-100">{{ $t('signup_referral') }} &nbsp; : &nbsp; </span>{{ affiliate_total }}</div>
-        <UButton icon="i-heroicons-document-duplicate" @click="copyToClipboard(affiliateLink)"
-          class="login-btn w-full h-12 justify-center rounded-full text-lg font-light mt-1 mb-3">{{ $t('copy') }}
+        <div class="dark:text-yellow-400 text-center my-4 text-xs">
+          <span class="dark:text-amber-100"
+            >{{ $t('signup_referral') }} &nbsp; : &nbsp; </span
+          >{{ affiliate_total }}
+        </div>
+        <UButton
+          icon="i-heroicons-document-duplicate"
+          @click="copyToClipboard(affiliateLink)"
+          class="login-btn w-full h-12 justify-center rounded-full text-lg font-light mt-1 mb-3"
+          >{{ $t('copy') }}
         </UButton>
       </div>
 
-      <UTabs v-model="activeTab" :items="tabList" class="w-full">
-        <template #icon="{ item, selected }">
-          <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0 mr-2 hidden sm:inline-block"
-            :class="[selected && 'text-amber-500 dark:text-amber-400']" />
-        </template>
-      </UTabs>
-      <AffiliateCredit v-if="activeTab === 0" />
-      <AffiliateTransaction v-if="activeTab === 1" />
+      <div class="border-t-2 w-full py-5 pt-8">
+        <UTabs v-model="activeTab" :items="tabList" class="w-full">
+          <template #icon="{ item, selected }">
+            <UIcon
+              :name="item.icon"
+              class="w-4 h-4 flex-shrink-0 mr-2 hidden sm:inline-block"
+              :class="[selected && 'text-amber-500 dark:text-amber-400']"
+            />
+          </template>
+        </UTabs>
+        <AffiliateCredit v-if="activeTab === 0" v-on:active-tab="onActiveTab" />
+        <MultipleTransaction
+          :channel="TransactionChannel.AFFILIATE"
+          v-if="activeTab === 1"
+        />
+      </div>
+
+      <div class="mt-4 border-t-2 w-full py-5">
+        <AffiliateTransaction />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { RequestLinkAffiliate , RequestAffiliateChildById, AffiliateChildByIdData } from '~/models/affiliate.model'
+import { TransactionChannel } from '~/models/transactions.model'
+import type {
+  RequestLinkAffiliate,
+  RequestAffiliateChildById,
+  AffiliateChildByIdData,
+} from '~/models/affiliate.model'
 
 const { t } = useI18n()
 const popupStore = usePopupStore()
@@ -47,7 +78,7 @@ const tabList = [
   },
   {
     name: 'history',
-    label: t('affiliate_menus_reports'),
+    label: t('history_short'),
     icon: 'i-heroicons-clock',
   },
 ]
@@ -91,9 +122,15 @@ const getAffiliateChildById = async (body: RequestAffiliateChildById) => {
   }
 }
 
+const onActiveTab = (tab: number) => (activeTab.value = tab)
+
 onMounted(() => {
   getLinkAffiliate({ url: `${baseURL.value}` })
-  if(profileStore.userData)
-    getAffiliateChildById({ username: profileStore.userData.username , page : 1 , size : 50 })
+  if (profileStore.userData)
+    getAffiliateChildById({
+      username: profileStore.userData.username,
+      page: 1,
+      size: 50,
+    })
 })
 </script>

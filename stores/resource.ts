@@ -20,7 +20,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
   const popupStore = usePopupStore()
 
   const isLoading = ref(false)
-  const version = 'v1.0'
+  const version = 'v1.1'
   const prefix = ref<PrefixPermissionData>()
   const resources = ref<ResoucesData>()
   const bankList = ref<NewBankList[]>([])
