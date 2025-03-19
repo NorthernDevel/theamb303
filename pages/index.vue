@@ -66,11 +66,11 @@ useSeoMeta({
   description: 'This is the home Page',
   ogTitle: 'THEAMB303',
   ogDescription: 'THEAMB303, slot, casino, pgslot, poker, bacarat',
-  ogImage: '[og:image]',
-  ogUrl: '[og:url]',
+  ogImage: '/assets/images/logo.png',
+  ogUrl: 'https://theamb-303.com',
   twitterTitle: 'THEAMB303',
   twitterDescription: 'THEAMB303, slot, casino, pgslot, poker, bacarat',
-  twitterImage: '[twitter:image]',
+  twitterImage: '/assets/images/logo.png',
   twitterCard: 'summary',
 })
 
