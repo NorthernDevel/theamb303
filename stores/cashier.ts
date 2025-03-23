@@ -42,6 +42,7 @@ export const useCashierStore = defineStore('CashierStore', () => {
 
   const askmepaySerivce = computed(() => {
     if (!askmepayData.value) return undefined
+    if (!askmepayData.value.record) return undefined
     if (!askmepayData.value.record.length) return undefined
     if (!askmepayData.value.record[0].services.length) return undefined
     return askmepayData.value.record[0].services[0]
@@ -49,12 +50,14 @@ export const useCashierStore = defineStore('CashierStore', () => {
 
   const askmepayIsDepositChannel = computed(() => {
     if (!askmepayData.value) return false
+    if (!askmepayData.value.record) return false
     if (!askmepayData.value.record.length) return false
     return askmepayData.value.record[0].isDepositChannel
   })
 
   const askmepayMinMaxDeposit = computed(() => {
     if (!askmepayData.value) return { minimum: 0, maximum: 0 }
+    if (!askmepayData.value.record) return { minimum: 0, maximum: 0 }
     if (!askmepayData.value.record.length) return { minimum: 0, maximum: 0 }
     if (!askmepayData.value.record[0].services.length)
       return { minimum: 0, maximum: 0 }
