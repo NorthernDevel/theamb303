@@ -166,9 +166,11 @@
     <AppModalLogin v-model="popupStore.isOpenModalLogin" />
     <AppModalRegister v-model="popupStore.isOpenModalRegister" />
     <AppModalForgotPassword v-model="popupStore.isOpenModalForgotPassword" />
+    <AppPopupNotLogin v-model="popupStore.isOpenPopupNotLogin" />
   </div>
   <div v-else>
     <AppModalProfile v-model="popupStore.isOpenModalProfile" />
+    <AppPopupLoggedIn v-model="popupStore.isOpenPopupLoggedIn" />
   </div>
   <AppModalContact v-model="popupStore.isOpenModalContact" />
 </template>

@@ -8,6 +8,7 @@ export interface ResoucesData {
   announcement: Announcement
   banners: imageLuancherData[]
   promotions: imageLuancherData[]
+  popups: PopupData[]
   imageUrl: ImageURL
   url: string
   createAt: Date
@@ -80,4 +81,13 @@ export interface ImageURL {
   logo: string
   popup: string
   promotion: string
+}
+
+export interface PopupData {
+  image: string
+  route: string
+  isInternal: boolean
+  isLogin: boolean
+  isActive: boolean
+  isFlash: boolean
 }

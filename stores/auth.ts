@@ -5,6 +5,7 @@ export const useAuthStore = defineStore('authStore', () => {
   const route = useRoute()
   const profileStore = useProfileStore()
   const promotionStore = usePromotionStore()
+  const resourceStore = useResourceStore()
   const navStore = useNavStore()
   const authToken = useCookie('auth_token')
   const isAuthenticated = ref(!!authToken.value)
@@ -54,7 +55,6 @@ export const useAuthStore = defineStore('authStore', () => {
     if (isAuthenticated.value) {
       // NOTE: Reload menu favorites and recently.
       navStore.menuGames = navStore.menuGames
-
       setTimeout(async () => profileStore.getProfile(), 200)
       fetchInterval.value = setInterval(
         async () => profileStore.getProfile(),
@@ -64,21 +64,28 @@ export const useAuthStore = defineStore('authStore', () => {
       // NOTE: Reload menu favorites and recently.
       navStore.menuGames = navStore.menuGames
       checkRouteRedirectToHome()
-
+      if (!route.query.action) resourceStore.showPopupNotLogin()
       clearInterval(fetchInterval.value)
     }
   })
 
+  const handleOnMounted = async () => {
+    setTimeout(async () => {
+      await profileStore.getProfile()
+      promotionStore.isDisabledAutoPromotions()
+    }, 200)
+    fetchInterval.value = setInterval(
+      async () => profileStore.getProfile(),
+      1000 * 12
+    )
+  }
+
   onMounted(() => {
     if (isAuthenticated.value) {
-      setTimeout(async () => {
-        profileStore.getProfile()
-        promotionStore.isDisabledAutoPromotions()
-      }, 200)
-      fetchInterval.value = setInterval(
-        async () => profileStore.getProfile(),
-        1000 * 12
-      )
+      handleOnMounted()
+    } else {
+      clearAllStore()
+      if (!route.query.action) resourceStore.showPopupNotLogin()
     }
   })
 

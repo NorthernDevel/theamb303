@@ -7,6 +7,7 @@ export const usePromotionStore = defineStore('promotionStore', () => {
   const popupStore = usePopupStore()
   const authStore = useAuthStore()
   const profileStore = useProfileStore()
+  const resourceStore = useResourceStore()
 
   const promotions = ref<PromotionData[]>([])
 
@@ -22,8 +23,11 @@ export const usePromotionStore = defineStore('promotionStore', () => {
             preventClose: true,
             doNotShow: true,
             onConfirm: () => popupStore.openModalProfile('config-promotion'),
+            onCancel: () => resourceStore.showPopupLoggedIn(),
           })
         }
+      } else {
+        resourceStore.showPopupLoggedIn()
       }
     }, 1000)
   }

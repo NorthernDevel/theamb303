@@ -112,6 +112,42 @@ export const useResourceStore = defineStore('resourceStore', () => {
     return en && th
   })
 
+  const popups = computed(() => {
+    if (!resources.value) return []
+    const { popups, imageUrl } = resources.value
+    if (!popups.length) return []
+    const newPopups = popups.map((popup) => {
+      return { ...popup, image: `${imageUrl.popup}${popup.image}` }
+    })
+    return newPopups
+  })
+
+  const popupNotLogin = computed(() => {
+    if (!popups) return []
+    return popups.value.filter(
+      (item) => item.isActive && !item.isLogin && !item.isFlash
+    )
+  })
+
+  const showPopupNotLogin = () => {
+    setTimeout(() => {
+      if (popupNotLogin.value.length) popupStore.openPopupNotLogin()
+    }, 1000)
+  }
+
+  const popupLoggedIn = computed(() => {
+    if (!popups) return []
+    return popups.value.filter(
+      (item) => item.isActive && item.isLogin && !item.isFlash
+    )
+  })
+
+  const showPopupLoggedIn = () => {
+    setTimeout(() => {
+      if (popupLoggedIn.value.length) popupStore.openPopupLoggedIn()
+    }, 1000)
+  }
+
   const getResoures = async () => {
     try {
       isLoading.value = true
@@ -143,6 +179,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
     isDeposit,
     bankList,
     contacts,
+    popups,
     announcement,
     footerDescription,
     bannerImages,
@@ -151,5 +188,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
     tags,
     apkFile,
     getResoures,
+    showPopupNotLogin,
+    showPopupLoggedIn,
   }
 })
