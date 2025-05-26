@@ -6,6 +6,7 @@ export const useAuthStore = defineStore('authStore', () => {
   const profileStore = useProfileStore()
   const promotionStore = usePromotionStore()
   const resourceStore = useResourceStore()
+  const miniGameStore = useMiniGameStore()
   const navStore = useNavStore()
   const authToken = useCookie('auth_token')
   const isAuthenticated = ref(!!authToken.value)
@@ -40,6 +41,7 @@ export const useAuthStore = defineStore('authStore', () => {
     isAuthenticated.value = false
     profileStore.clear()
     clearInterval(fetchInterval.value)
+    miniGameStore.answersData = []
   }
 
   const isSafari = computed(() => {
@@ -55,7 +57,10 @@ export const useAuthStore = defineStore('authStore', () => {
     if (isAuthenticated.value) {
       // NOTE: Reload menu favorites and recently.
       navStore.menuGames = navStore.menuGames
-      setTimeout(async () => profileStore.getProfile(), 200)
+      setTimeout(async () => {
+        await profileStore.getProfile()
+        await miniGameStore.fetchPridictAllActive()
+      }, 200)
       fetchInterval.value = setInterval(
         async () => profileStore.getProfile(),
         1000 * 12
@@ -72,6 +77,7 @@ export const useAuthStore = defineStore('authStore', () => {
   const handleOnMounted = async () => {
     setTimeout(async () => {
       await profileStore.getProfile()
+      await miniGameStore.fetchPridictAllActive()
       promotionStore.isDisabledAutoPromotions()
     }, 200)
     fetchInterval.value = setInterval(

@@ -32,6 +32,7 @@ export const usePopupStore = defineStore('popupStore', {
       isOpenModalForgotPassword: false,
       isOpenModalRegister: false,
       isOpenModalContact: false,
+      isOpenModalPrediction: false,
       isOpenPopupNotLogin: false,
       isOpenPopupLoggedIn: false,
       refId: '',
@@ -87,6 +88,12 @@ export const usePopupStore = defineStore('popupStore', {
     },
     closeModalContact() {
       this.isOpenModalContact = false
+    },
+    openModalPrediction() {
+      this.isOpenModalPrediction = true
+    },
+    closeModalPrediction() {
+      this.isOpenModalPrediction = false
     },
     openPopupNotLogin() {
       this.isOpenPopupNotLogin = true

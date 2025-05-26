@@ -3,41 +3,6 @@
     v-if="!authStore.isAuthenticated"
     class="container flex flex-col sm:flex-row items-center mx-auto md:mx-auto mt-2 mb-4"
   >
-    <!-- <div class="w-11/12 md:w-1/2 flex justify-center h-[380px]">
-      <NuxtImg
-        src="/assets/images/ts-1.webp"
-        class="md:animate-up-and-down max-h-[296px] sm:hidden lg:inline-block md:max-h-[384px]"
-        loading="lazy"
-      />
-      <NuxtImg
-        src="/assets/images/ts-2.webp"
-        class="animate-up-and-down md:max-w-full hidden sm:inline-block lg:hidden md:max-h-[384px]"
-        loading="lazy"
-      />
-    </div>
-    <div class="w-11/12 md:w-1/2 mx-auto">
-      <div class="lg:ml-24">
-        <h1
-          class="hidden sm:inline-block text-5xl sm:text-7xl font-bold tracking-tight text-white dark:text-white mb-10"
-        >
-          STARTER BONUS
-          <br />
-          <span
-            class="text-4xl sm:text-6xl text-amber-400 block lg:inline-block"
-          >
-            ฝากแรก 100.- รับ 200.-
-          </span>
-        </h1>
-      </div>
-
-      <div class="text-center w-full">
-        <UButton
-          class="register-btn w-60 h-16 justify-center rounded-full text-3xl"
-          @click="popupStore.openModalRegister()"
-          >{{ $t('register') }}</UButton
-        >
-      </div>
-    </div> -->
     <UCarousel
       ref="carouselAnnouncementRef"
       v-slot="{ item }"
@@ -142,41 +107,62 @@
     </div>
   </div>
 
-  <div
-    v-if="authStore.isAuthenticated"
-    class="flex items-center justify-center gap-4 mt-4 sm:mt-6 mb-2"
-  >
-    <div class="group" @click="popupStore.openModalProfile('cashier')">
-      <div
-        class="relative w-36 sm:w-44 lg:w-52 h-14 sm:h-16 lg:h-20 p-2 flex flex-nowrap items-center justify-center gap-1 tab-menu !bg-gradient-to-b from-sky-400 via-sky-500 to-sky-600"
-      >
-        <AppChip :show="!bankStore.isCustomerAccount" />
-        <NuxtImg
-          src="/assets/images/icons/ic-3d-deposit.webp"
-          alt="deposit"
-          class="w-16 sm:w-20 h-16 sm:h-20 lg:w-24 lg:h-24 object-contain transition-all duration-200 group-hover:scale-110"
-          loading="lazy"
-        />
+  <div v-if="authStore.isAuthenticated">
+    <div class="flex items-center justify-center gap-4 mt-4 sm:mt-6 mb-2">
+      <div class="group" @click="popupStore.openModalProfile('cashier')">
+        <div
+          class="relative w-36 sm:w-44 lg:w-52 h-14 sm:h-16 lg:h-20 p-2 flex flex-nowrap items-center justify-center gap-1 tab-menu !bg-gradient-to-b from-sky-400 via-sky-500 to-sky-600"
+        >
+          <AppChip :show="!bankStore.isCustomerAccount" />
+          <NuxtImg
+            src="/assets/images/icons/ic-3d-deposit.webp"
+            alt="deposit"
+            class="w-16 sm:w-20 h-16 sm:h-20 lg:w-24 lg:h-24 object-contain transition-all duration-200 group-hover:scale-110"
+            loading="lazy"
+          />
 
-        <p class="text-center text-gray-50 sm:text-lg lg:text-xl">
-          {{ $t('deposit') }}
-        </p>
+          <p class="text-center text-gray-50 sm:text-lg lg:text-xl">
+            {{ $t('deposit') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="group" @click="cashierStore.openWithdrawFromPage()">
+        <div
+          class="w-36 sm:w-44 lg:w-52 h-14 sm:h-16 lg:h-20 p-2 flex flex-nowrap items-center justify-center gap-1 tab-menu !bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600"
+        >
+          <NuxtImg
+            src="/assets/images/icons/ic-3d-withdraw.webp"
+            alt="withdraw"
+            class="w-16 sm:w-20 h-16 sm:h-20 lg:w-24 lg:h-24 object-contain transition-all duration-200 group-hover:scale-110"
+            loading="lazy"
+          />
+          <p class="text-center text-gray-50 sm:text-lg lg:text-xl">
+            {{ $t('withdraw') }}
+          </p>
+        </div>
       </div>
     </div>
 
-    <div class="group" @click="cashierStore.openWithdrawFromPage()">
-      <div
-        class="w-36 sm:w-44 lg:w-52 h-14 sm:h-16 lg:h-20 p-2 flex flex-nowrap items-center justify-center gap-1 tab-menu !bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600"
-      >
-        <NuxtImg
-          src="/assets/images/icons/ic-3d-withdraw.webp"
-          alt="withdraw"
-          class="w-16 sm:w-20 h-16 sm:h-20 lg:w-24 lg:h-24 object-contain transition-all duration-200 group-hover:scale-110"
-          loading="lazy"
-        />
-        <p class="text-center text-gray-50 sm:text-lg lg:text-xl">
-          {{ $t('withdraw') }}
-        </p>
+    <div
+      v-if="miniGameStore.answersData.length"
+      class="flex justify-center py-2"
+    >
+      <div class="group" @click="popupStore.openModalPrediction()">
+        <div
+          class="w-52 sm:w-60 lg:w-80 h-20 sm:h-24 lg:h-28 p-2 flex flex-nowrap items-center justify-center gap-1 tab-menu"
+        >
+          <!-- <AppChip :show="true" /> -->
+          <NuxtImg
+            src="/assets/images/icons/ic-3d-quiz.webp"
+            alt="pridiction activity"
+            class="w-20 sm:w-24 h-20 sm:h-24 lg:w-28 lg:h-28 object-contain transition-all duration-200 group-hover:scale-110"
+            loading="lazy"
+          />
+          <p class="text-center text-gray-500 sm:text-lg lg:text-xl">
+            {{ $t('prediction_activity') }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -193,6 +179,7 @@
 const authStore = useAuthStore()
 const profileStore = useProfileStore()
 const resourceStore = useResourceStore()
+const miniGameStore = useMiniGameStore()
 const popupStore = usePopupStore()
 const cashierStore = useCashierStore()
 const bankStore = useBankStore()

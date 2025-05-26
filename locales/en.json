@@ -110,7 +110,7 @@
   "success": "Successfully",
 
   "__________FOOTER": "THIS IS FOOTER PLACE",
-  "copyright": "Copyright THEAMB303 {version} © 2025 All Rights Reserved.",
+  "copyright": "Copyright OHHOE {version} © 2025 All Rights Reserved.",
 
   "__________FORGOT_PASSWORD": "THIS IS FORGOT PASSWORD PLACE",
   "forgot_password": "Forgot password",
@@ -187,6 +187,20 @@
   "required_pass_confirm": "Please enter the password confirmation.",
   "required_pass_match": "Please ensure the passwords match.",
   "required_password": "Please enter the password.",
+
+  "__________PREDICTION": "THIS IS PREDICTION PLACE",
+  "prediction_activity": "Prediction Activity",
+  "prediction_correct": "🎉 Congratulations, you answered correctly",
+  "prediction_detail": "Detail",
+  "prediction_incorrect": "❌ The answer you chose is incorrect",
+  "prediction_in_progress": "In Progress",
+  "prediction_preiod": "Prediction Period",
+  "prediction_question": "Question: { question }",
+  "prediction_time_over": "Prediction Time Over",
+  "prediction_time_over_with_icon": "⏱️ Prediction Time Over",
+  "prediction_waiting_for_results": "⏳ Waiting for Results",
+  "prediction_your_answer": "Your answer is: ( { answer } )",
+  "prediction_your_answer_selected": "Your answer is",
 
   "__________PROFILE": "THIS IS PROFILE PLACE",
   "balance": "Balance",

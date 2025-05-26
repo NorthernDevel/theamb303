@@ -94,3 +94,10 @@ export interface RequestFortune {
 export interface RequestFortuneHonorBoard {
   limit: number
 }
+
+export interface RequestPredictAll {
+  isActive: number
+  limit: number
+  name: number
+  page: number
+}

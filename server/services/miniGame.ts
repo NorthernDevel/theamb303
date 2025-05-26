@@ -15,6 +15,7 @@ import {
   RequestFortune,
   RequestFortuneHonorBoard,
 } from '~/models/mini-game.model'
+import { Answer, AnswerMap, AnswerPlayer, Predict } from '~/models/predict.model'
 
 export const receiveFortuneAffiliateTicket = async (
   body: RequestFortuneAffiliateTicket
@@ -93,6 +94,43 @@ export const getFortuneHonorBoardPost = async (
   const { data: response } = await useHttpClient().post<FortuneHonorBoard>(
     `/minigame/getFortuneHonorBoardPost`,
     body
+  )
+  return response
+}
+
+export const getPredictAllActive = async (): Promise<Predict> => {
+  const { data: response } = await useHttpClient().post<Predict>(
+    `/minigame/getPredictAll`,
+    { isActive: 1, limit: 100, name: '', page: 1 }
+  )
+  return response
+}
+
+export const getPredictById = async (id: string): Promise<Answer> => {
+  const { data: response } = await useHttpClient().post<Answer>(
+    `/minigame/getPredictById`,
+    { id }
+  )
+  return response
+}
+
+export const getAnswerPlayer = async (
+  id: string,
+  answer: AnswerMap
+): Promise<Answer> => {
+  const { data: response } = await useHttpClient().post<Answer>(
+    `/minigame/answerPlayer`,
+    { id, answer }
+  )
+  return response
+}
+
+export const getAnswerPlayerByIdPredict = async (
+  answerId: string
+): Promise<AnswerPlayer> => {
+  const { data: response } = await useHttpClient().post<AnswerPlayer>(
+    `/minigame/getAnswerPlayerByIdPredict`,
+    { answerId }
   )
   return response
 }

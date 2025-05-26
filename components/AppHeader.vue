@@ -7,7 +7,7 @@
   >
     <div
       v-if="isChangeClass"
-      class="absolute inset-0 bg-gradient-to-r from-red-600 to-red-500 opacity-95 dark:bg-gray-900 dark:opacity-95 -z-10"
+      class="absolute inset-0 bg-gradient-to-r from-amber-500 to-amber-400 opacity-95 dark:bg-gray-900 dark:opacity-95 -z-10"
     ></div>
     <div class="container mx-auto flex justify-between items-center">
       <div class="flex gap-2">
@@ -170,6 +170,7 @@
   </div>
   <div v-else>
     <AppModalProfile v-model="popupStore.isOpenModalProfile" />
+    <AppModalPrediction v-model="popupStore.isOpenModalPrediction" />
     <AppPopupLoggedIn v-model="popupStore.isOpenPopupLoggedIn" />
   </div>
   <AppModalContact v-model="popupStore.isOpenModalContact" />

@@ -1,6 +1,7 @@
 // stores/games-provider.ts
 import { GameType, type RequestGameLogin } from '~/models/default.model'
 import type { GamesList, GamesProvider } from '~/models/games.model'
+import type { AnswerData } from '~/models/predict.model'
 
 export interface GameSport {
   games: GameSportData[]
@@ -251,8 +252,6 @@ export const useGameStore = defineStore('gameStore', () => {
         filterListData.value.forEach((provider, index) => {
           if (index === 0) {
             collapsed.value[provider.productCode] = false
-            console.log(provider.productCode);
-            
           } else {
             // NOTE: Default to collapsed
             collapsed.value[provider.productCode] = true
