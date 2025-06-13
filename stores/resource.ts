@@ -24,6 +24,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
   const prefix = ref<PrefixPermissionData>()
   const resources = ref<ResoucesData>()
   const bankList = ref<NewBankList[]>([])
+  const clientIp = ref<string | undefined>()
 
   const infoSetting = computed((): InfoSetting => {
     if (!resources.value)
@@ -187,6 +188,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
     registerType,
     tags,
     apkFile,
+    clientIp,
     getResoures,
     showPopupNotLogin,
     showPopupLoggedIn,

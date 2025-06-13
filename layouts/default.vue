@@ -66,6 +66,10 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
+// NOTE: Get Client IP
+const { data } = await useFetch('/api/ip')
+resourceStore.clientIp = data.value?.ip
+
 onBeforeMount(() => {
   authStore.checkRouteRedirectToHome()
 

@@ -3,6 +3,7 @@ import axios from 'axios'
 export const useHttpClient = () => {
   const config = useRuntimeConfig()
   const lang = useLanguageStore()
+  const { clientIp } = useResourceStore()
   const authToken = useCookie('auth_token')
 
   const api = axios.create({
@@ -11,6 +12,7 @@ export const useHttpClient = () => {
       'Request-Id': config.public.requestID,
       SiteId: config.public.siteID,
       Lang: lang.currentLang,
+      'Client-Ip': clientIp,
     },
     timeout: 10000,
   })
