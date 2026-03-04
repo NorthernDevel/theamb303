@@ -25,9 +25,9 @@ export const usePromotionStore = defineStore('promotionStore', () => {
             onConfirm: () => popupStore.openModalProfile('config-promotion'),
             onCancel: () => resourceStore.showPopupLoggedIn(),
           })
+        } else {
+          resourceStore.showPopupLoggedIn()
         }
-      } else {
-        resourceStore.showPopupLoggedIn()
       }
     }, 1000)
   }
