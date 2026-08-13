@@ -68,6 +68,7 @@ export interface Currency {
 export interface IsDeposit {
   isAskmepay: boolean
   isAuto: boolean
+  isAutoPeer: boolean
   isAutoSlip: boolean
   isDecimal: boolean
   isManualSlip: boolean

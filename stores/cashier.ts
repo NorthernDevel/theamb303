@@ -1,8 +1,38 @@
 import type { ServiceAskmepayData } from '~/models/service-ask.model'
 
+export type ChannelType =
+  | 'AUTO'
+  | 'AUTO_SLIP'
+  | 'AUTO_PEER'
+  | 'THPAY'
+  | 'TRUEWALLET'
+  | 'DECIMAL'
+  | 'MANUAL_SLIP'
+  | 'EXPRESS_DEPOSIT'
+  | undefined
+
+export type PendingDepositState = {
+  activeTab: number
+  idSelect: ChannelType
+  isSelectedChannel: boolean
+  onConfirm?: () => void
+}
+
+interface DepositMenu {
+  name: string
+  label: string
+  description: string
+  image: string
+  to: ChannelType
+  recommend: boolean
+  recommend_label: string
+  enabled: boolean
+}
+
 // stores/cashier.ts
 export const useCashierStore = defineStore('CashierStore', () => {
   const { t } = useI18n()
+  const resourceStore = useResourceStore()
   const popupStore = usePopupStore()
   const loaderStore = useLoaderStore()
 
@@ -37,104 +67,134 @@ export const useCashierStore = defineStore('CashierStore', () => {
       label: t('history_withdraw'),
     },
   ]
-  const depositMenu = [
-    {
-      name: 'deposit_auto_slip',
-      label: 'ธนาคาร (แบนสลิป)',
-      image: 'assets/images/icons/ic-3d-upload-slip.webp',
-      to: 'AUTO_SLIP',
-      recommend: false,
-      recommend_label: 'ยอดนิยม',
-    },
-    {
-      name: 'deposit_auto',
-      label: 'ฝากธนาคาร',
-      image: 'assets/images/icons/ic-3d-bank.webp',
-      to: 'AUTO',
-      recommend: false,
-      recommend_label: 'ยอดนิยม',
-    },
-    {
-      name: 'deposit_auto_peer',
-      label: 'deposit_auto_peer',
-      image: 'assets/images/icons/ic-3d-peer.webp',
-      to: 'AUTO_PEER',
-      recommend: false,
-      recommend_label: 'ยอดนิยม',
-    },
-    {
-      name: 'deposit_qrcode',
-      label: 'ฝากผ่าน THPAY',
-      image: 'assets/images/icons/ic-3d-pay.webp',
-      to: 'THPAY',
-      recommend: false,
-      recommend_label: 'แนะนำ',
-    },
-    {
-      name: 'deposit_truemoney',
-      label: 'deposit_truemoney',
-      image: 'assets/images/icons/ic-true-money.webp',
-      to: 'TRUEWALLET',
-      recommend: false,
-      recommend_label: 'ยอดนิยม',
-    },
-    {
-      name: 'deposit_decimal',
-      label: 'deposit_decimal',
-      image: 'assets/images/icons/ic-3d-decimal.webp',
-      to: 'DECIMAL',
-      recommend: false,
-      recommend_label: 'ยอดนิยม',
-    },
-  ]
   const isSelectedChannel = ref(false)
-  const idSelect = ref()
+  const idSelect = ref<ChannelType>()
+  const amountIsSlipAndThpay = ref(0)
   const p2cRef = ref('')
+  const isAutoPeerTransferPending = ref(false)
+  const confirmAutoPeerLeave = ref<
+    ((pendingState: PendingDepositState) => void) | undefined
+  >()
   const thpayIsDisabled = ref(false)
   const askmepayData = ref<ServiceAskmepayData>()
 
-  const askmepaySerivce = computed(() => {
-    if (!askmepayData.value) return undefined
-    if (!askmepayData.value.record) return undefined
-    if (!askmepayData.value.record.length) return undefined
-    if (!askmepayData.value.record[0].services.length) return undefined
-    return askmepayData.value.record[0].services[0]
-  })
+  const askmepayRecord = computed(() => askmepayData.value?.record?.[0])
+  const askmepaySerivce = computed(() => askmepayRecord.value?.services?.[0])
 
   const askmepayIsDepositChannel = computed(() => {
-    if (!askmepayData.value) return false
-    if (!askmepayData.value.record) return false
-    if (!askmepayData.value.record.length) return false
-    return askmepayData.value.record[0].isDepositChannel
+    return askmepayRecord.value?.isDepositChannel ?? false
   })
 
   const askmepayMinMaxDeposit = computed(() => {
-    if (!askmepayData.value) return { minimum: 0, maximum: 0 }
-    if (!askmepayData.value.record) return { minimum: 0, maximum: 0 }
-    if (!askmepayData.value.record.length) return { minimum: 0, maximum: 0 }
-    if (!askmepayData.value.record[0].services.length)
-      return { minimum: 0, maximum: 0 }
-    const { minimumDeposit, maximumDeposit } =
-      askmepayData.value.record[0].services[0]
+    if (!askmepaySerivce.value) return { minimum: 0, maximum: 0 }
+
+    const { minimumDeposit, maximumDeposit } = askmepaySerivce.value
     return { minimum: minimumDeposit, maximum: maximumDeposit }
   })
 
-  const previousPage = () => {
-    title.value = defaultTitle
-    isSelectedChannel.value = false
-    idSelect.value = undefined
+  const depositMenu = computed((): DepositMenu[] => {
+    return [
+      {
+        name: 'deposit_express',
+        label: 'ฝากเงินด่วน',
+        description: 'ฝากเงินเข้าเว็ป ในช่องทางที่รวดเร็วและดีที่สุด',
+        image: 'assets/images/icons/ic-3d-upload-slip.webp',
+        to: 'EXPRESS_DEPOSIT',
+        recommend: true,
+        recommend_label: 'ช่องทางฝากยอดนิยม',
+        enabled:
+          resourceStore.isDeposit.isAutoSlip ||
+          resourceStore.isDeposit.isAskmepay,
+      },
+      {
+        name: 'deposit_auto',
+        label: 'ฝากผ่านบัญชีธนาคาร',
+        description: 'ฝากเงินผ่านบัญชีทางเว็ป เข้าอัตโนมัติทันที',
+        image: 'assets/images/icons/ic-3d-bank.webp',
+        to: 'AUTO',
+        recommend: false,
+        recommend_label: 'ยอดนิยม',
+        enabled: resourceStore.isDeposit.isAuto,
+      },
+      {
+        name: 'deposit_auto_peer',
+        label: 'ฝากผ่านช่องทาง Autopeer',
+        description: 'ฝาก-ถอน ระหว่างผู้ใช้โดยตรง ปลอดภัย รวดเร็ว',
+        image: 'assets/images/icons/ic-3d-peer.webp',
+        to: 'AUTO_PEER',
+        recommend: false,
+        recommend_label: 'ยอดนิยม',
+        enabled:
+          resourceStore.isDeposit.isAutoPeer ||
+          resourceStore.isDeposit.isPeer2Pay,
+      },
+      {
+        name: 'deposit_truemoney',
+        label: 'deposit_truemoney',
+        description: 'เข้าระบบรวดเร็ว ปลอดภัย ใช้งานง่าย',
+        image: 'assets/images/icons/ic-true-money.webp',
+        to: 'TRUEWALLET',
+        recommend: false,
+        recommend_label: 'ยอดนิยม',
+        enabled: resourceStore.isDeposit.isTrueWallet,
+      },
+      {
+        name: 'deposit_decimal',
+        label: 'deposit_decimal',
+        description: '',
+        image: 'assets/images/icons/ic-3d-decimal.webp',
+        to: 'DECIMAL',
+        recommend: false,
+        recommend_label: 'ยอดนิยม',
+        enabled: resourceStore.isDeposit.isDecimal,
+      },
+    ]
+  })
+
+  const goExpressDeposit = () => {
+    isSelectedChannel.value = true
+    idSelect.value = 'EXPRESS_DEPOSIT'
+    amountIsSlipAndThpay.value = 0
   }
 
   const goDepositHistory = () => {
     isSelectedChannel.value = false
     idSelect.value = undefined
+    amountIsSlipAndThpay.value = 0
     activeTab.value = 2
     activeTabHistory.value = 0
   }
 
+  const backToMainDeposit = () => {
+    isSelectedChannel.value = false
+    idSelect.value = undefined
+    amountIsSlipAndThpay.value = 0
+  }
+
+  const setAutoPeerTransferPending = (
+    isPending: boolean,
+    onConfirmLeave?: (pendingState: PendingDepositState) => void,
+  ) => {
+    isAutoPeerTransferPending.value = isPending
+    confirmAutoPeerLeave.value = onConfirmLeave
+  }
+
   const openWithdrawFromPage = () => {
     popupStore.openModalProfile('cashier')
+    activeTab.value = 0
+  }
+
+  const openDepositFromPage = () => {
+    popupStore.openModalProfile('cashier')
     activeTab.value = 1
+  }
+
+  const onCancelDeposit = () => {
+    popupStore.alertSuccess({
+      message: 'ยกเลิกรายการฝากสำเร็จ',
+      preventClose: true,
+      onConfirm: () => backToMainDeposit(),
+    })
   }
 
   const clear = () => {
@@ -143,6 +203,8 @@ export const useCashierStore = defineStore('CashierStore', () => {
     activeTabHistory.value = 0
     isSelectedChannel.value = false
     idSelect.value = undefined
+    amountIsSlipAndThpay.value = 0
+    setAutoPeerTransferPending(false)
   }
 
   const getP2cDepositPending = async () => {
@@ -210,11 +272,18 @@ export const useCashierStore = defineStore('CashierStore', () => {
     askmepayMinMaxDeposit,
     depositMenu,
     p2cRef,
+    isAutoPeerTransferPending,
+    confirmAutoPeerLeave,
     thpayIsDisabled,
-    previousPage,
+    amountIsSlipAndThpay,
     goDepositHistory,
     openWithdrawFromPage,
+    openDepositFromPage,
     clear,
+    backToMainDeposit,
+    goExpressDeposit,
+    onCancelDeposit,
+    setAutoPeerTransferPending,
     getP2cDepositPending,
     p2cCancelTransfer,
   }

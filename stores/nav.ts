@@ -146,13 +146,13 @@ export const useNavStore = defineStore('navStore', () => {
       gameType: 'LIVE',
       to: '/casino',
     },
-    // {
-    //   name: 'sport',
-    //   label: 'game_sport',
-    //   image: 'assets/images/menus/sport.webp',
-    //   gameType: 'SPORT',
-    //   to: '/sport',
-    // },
+    {
+      name: 'sport',
+      label: 'game_sport',
+      image: 'assets/images/menus/sport.webp',
+      gameType: 'SPORT',
+      to: '/sport',
+    },
     {
       name: 'fishing',
       label: 'game_fishing',

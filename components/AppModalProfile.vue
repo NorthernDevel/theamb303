@@ -20,14 +20,14 @@
             color="blue"
             variant="ghost"
             class="-my-1 justify-center absolute top-1 right-0 w-14 h-14 focus-visible:ring-0"
-            @click="isOpen = false"
+            @click="onClickClose()"
             ><UIcon name="i-heroicons-x-mark-20-solid" class="w-14 h-14"
           /></UButton>
         </div>
       </template>
 
       <div class="flex">
-        <div class="p-1 min-w-[6.1rem] sm:min-w-32 lg:min-w-44 overflow-y-auto">
+        <div class="p-1 min-w-[5rem] sm:min-w-32 lg:min-w-44 overflow-y-auto">
           <AppVerticalNav
             :links="navStore.menuProfile"
             color="blue"
@@ -81,11 +81,33 @@
 <script setup lang="ts">
 const navStore = useNavStore()
 const bankStore = useBankStore()
+const cashierStore = useCashierStore()
 
 const props = defineProps({
   modelValue: Boolean,
 })
 const emit = defineEmits(['update:modelValue'])
+
+const onClickClose = () => {
+  if (
+    cashierStore.isAutoPeerTransferPending &&
+    cashierStore.confirmAutoPeerLeave
+  ) {
+    const isBackToMainDeposit = cashierStore.isSelectedChannel
+
+    cashierStore.confirmAutoPeerLeave({
+      activeTab: cashierStore.activeTab,
+      idSelect: isBackToMainDeposit ? undefined : cashierStore.idSelect,
+      isSelectedChannel: isBackToMainDeposit
+        ? false
+        : cashierStore.isSelectedChannel,
+      onConfirm: isBackToMainDeposit ? undefined : () => (isOpen.value = false),
+    })
+    return
+  }
+
+  isOpen.value = false
+}
 
 onMounted(() => bankStore.getBankList())
 

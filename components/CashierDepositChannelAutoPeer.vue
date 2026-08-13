@@ -19,70 +19,31 @@
         <UButton
           type="button"
           class="theme-primary-btn w-full h-12 justify-center text-md my-5"
-          @click="cashierStore.idSelect = 'AUTO_SLIP'"
+          @click="cashierStore.backToMainDeposit()"
           >ใช้ช่องทางการฝากเงินอื่น</UButton
+        >
+        <UButton
+          type="button"
+          class="theme-danger-btn w-full h-12 justify-center text-md mb-4"
+          @click="popupStore.openModalContact()"
+          >ติดต่อแอดมิน</UButton
         >
       </div>
       <div v-else-if="!isCompleted" class="w-full">
         <InformationUpdate v-on:complete="toCompleted" />
       </div>
-      <div v-else>
+      <div v-else-if="isCompleted">
+        <p class="text-center text-sm text-amber-200/80 mt-2 mb-4">
+          ขั้นตอน กรอกยอด -> คัดลอกเลขบัญชี -> แนบสลิบ -> รับเครดิตทันที
+        </p>
         <div v-if="step === 0">
-          <UForm
-            :state="state"
-            :schema="amountDepositSchema"
-            ref="form"
-            @submit.prevent="onSubmitDeposit"
-            :validateOn="['blur']"
-          >
-            <AppFormGroup
-              :label="$t('please_specify_amount')"
-              :required="true"
-              name="amount"
-            >
-              <UInput
-                :ui="{
-                  base: 'text-right',
-                  color: {
-                    white: {
-                      outline:
-                        'bg-black/50 border-red-900/60 text-gray-100 ring-red-900/60 focus:ring-red-500 focus:border-amber-300',
-                    },
-                  },
-                }"
-                icon="i-heroicons-banknotes"
-                type="text"
-                size="lg"
-                inputmode="numeric"
-                v-model="state.amount"
-                v-on:blur="onBlur"
-              >
-                <template #trailing>
-                  <span class="text-amber-200/70 text-xs">{{
-                    profileStore.currency
-                  }}</span>
-                </template>
-              </UInput>
-            </AppFormGroup>
-
-            <div class="grid grid-cols-4 gap-2">
-              <UButton
-                v-for="amount in shortCutAmount"
-                type="button"
-                class="menu-btn-inactive w-full h-12 justify-center rounded-full text-md font-semibold !text-amber-100 [&_*]:!text-amber-100"
-                @click="onSelectshortCutAmount(amount.value)"
-                ><span v-if="isFirstSelect">+</span>{{ amount.name }}</UButton
-              >
-            </div>
-
-            <UButton
-              type="submit"
-              class="theme-primary-btn w-full h-12 justify-center text-lg my-4"
-              :loading="isLoading"
-            >
-              {{ $t('btn_next') }}
-            </UButton>
-          </UForm>
+          <NumberPad
+            :min="minAutopeerDeposit"
+            :max="maxAutopeerDeposit"
+            :short-cut-amount="shortCutAmount"
+            :loading="isLoading"
+            @submit="onSubmitNumberPad"
+          />
         </div>
 
         <div v-if="step === 1">
@@ -153,14 +114,15 @@
                     {{ summary }}฿
                   </p>
                 </div>
-                <p
-                  class="text-xs font-light text-amber-200/70 pt-2"
-                >
+                <p class="text-xs font-light text-amber-200/70 pt-2">
                   {{
                     $t('deposit_please_use_your_bank', {
                       bank_account: bankStore.userBank.account,
                     })
                   }}
+                </p>
+                <p class="text-center text-sm text-amber-200/70 mt-2">
+                  RIF: {{ cashierStore.p2cRef }}
                 </p>
               </div>
             </div>
@@ -168,7 +130,7 @@
             <div
               class="w-full flex flex-col items-center justify-center rounded-xl border border-amber-300/50 bg-red-950/40 px-6 py-4 text-amber-100 shadow-lg shadow-black/40 ring-1 ring-amber-200/10 ring-inset"
             >
-              <div class="w-full flex flex-col items-center">
+              <div v-if="!isTimeUp" class="w-full flex flex-col items-center">
                 <p class="font-light text-md sm:text-lg">
                   กรุณาโอนและอัปโหลดสลิปภายใน
                   <span
@@ -184,6 +146,14 @@
                   ช่องทางฝากนี้จะถูกระงับชั่วคราว
                 </p>
               </div>
+              <div v-else class="w-full flex flex-col items-center">
+                <p class="font-light text-md sm:text-lg text-rose-400">
+                  หมดเวลาทำรายการแล้ว
+                </p>
+                <p class="text-xs sm:text-sm text-amber-200/70">
+                  กรุณายกเลิกแล้วทำรายการใหม่อีกครั้ง
+                </p>
+              </div>
             </div>
 
             <div class="w-full">
@@ -195,119 +165,143 @@
                 type="button"
                 class="theme-primary-btn w-full h-12 justify-center text-lg my-2"
                 @click="onSubmit"
-                :disabled="isLoading"
+                :disabled="isLoading || isTimeUp"
                 >{{ $t('btn_apply') }}</UButton
               >
               <UButton
                 type="button"
                 class="theme-danger-btn w-full h-12 justify-center text-lg my-2"
-                @click="p2cCancelTransfer"
+                @click="onClickCancelTransfer"
                 :disabled="isLoading"
-                >{{ $t('btn_cancel') }}</UButton
+                >ยกเลิกรายการฝาก</UButton
               >
+            </div>
+
+            <div
+              class="theme-panel w-full flex flex-col items-center justify-center px-6 py-4"
+            >
+              <div class="w-full flex flex-col items-center">
+                <p class="theme-title font-medium text-md sm:text-lg">
+                  โอนภายใน 5 นาที ตรวจสอบเลขบัญชี ทุกครั้งก่อนโอน
+                </p>
+                <p class="text-sm text-left text-amber-100/80">
+                  *
+                  หากไม่อัปโหลดตามเวลาที่กำหนดคุณต้องดำเนินการแจ้งความว่าโอนเงินผิดและติดต่อธนาคารเพื่อดึงเงินคืนด้วยตนเอง
+                </p>
+                <p class="text-sm text-left text-amber-100/80">
+                  * กรณียกเลิกรายการ จะถูกระงับการฝากช่องทาง AutoPeer 3 นาที
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <AppModalHowToAutopeer v-model="popupStore.isOpenModalHowToAutopeer" />
 </template>
 
 <script lang="ts" setup>
-import { z } from 'zod'
 import { useInformation } from '~/composables/useCustomerService'
 import type { P2cDepositList } from '~/models/p2c.model'
-
-interface InitialState {
-  amount: number
-}
-
-interface ShortCutAmount {
-  name: string
-  value: number
-}
+import type { ChannelType, PendingDepositState } from '~/stores/cashier'
+import type { ShortCutAmount } from './NumberPad.vue'
 
 const { t } = useI18n()
 const cashierStore = useCashierStore()
 const bankStore = useBankStore()
 const popupStore = usePopupStore()
 const profileStore = useProfileStore()
-const { useParseAmount } = useFormatter()
 const { copyToClipboard } = useClipboard()
 
-const initialState: InitialState = {
-  amount: 100,
-}
-
-const state = ref({
-  ...initialState,
-})
-
 const shortCutAmount: ShortCutAmount[] = [
-  { name: '50', value: 50 },
   { name: '100', value: 100 },
+  { name: '300', value: 300 },
   { name: '500', value: 500 },
   { name: '1,000', value: 1000 },
+  { name: '3,000', value: 3000 },
+  { name: '5,000', value: 5000 },
+  { name: '10,000', value: 10000 },
+  { name: '20,000', value: 20000 },
 ]
 
-const amountDepositSchema = z.object({
-  amount: z
-    .number({ required_error: t('please_specify_amount') })
-    .min(1, t('amount_must_be_more_than_0'))
-    .max(1000, t('amount_must_not_exceed_1000')),
-})
+const minAutopeerDeposit = 100
+const maxAutopeerDeposit = 20000
 
 const isLoading = ref(false)
 const isCompleted = ref(false)
+const isTimeUp = ref(false)
 const step = ref(0)
-const form = ref()
-const amount = ref('0')
-const isFirstSelect = ref(false)
+const amount = ref(0)
 const isDepositError = ref('')
 const p2cDepositList = ref<P2cDepositList[]>([])
 const summary = ref<string>('')
 const countdown = ref()
 const base64Image = ref<string | undefined>(undefined)
+const skipLeaveConfirm = ref(false)
+const isConfirmingLeave = ref(false)
+const depositLoopKey = ref(0)
 
 const isAutoPeer = computed(() => {
   if (!profileStore.userData) return false
   return profileStore.userData.isDeposit.isAutoPeer
 })
 
-const onSelectshortCutAmount = (value: number) => {
-  if (!isFirstSelect.value) {
-    isFirstSelect.value = true
-    state.value.amount = value
-  } else {
-    state.value.amount = state.value.amount + value
+const normalizeP2cExpiredDate = (expiredDate: string) => {
+  return expiredDate.replace(/\sUTC\+7$/, ' UTC')
+}
+
+const applyP2cDepositData = (
+  data: {
+    list?: P2cDepositList[]
+    summary: string
+    expiredDate: string
+  },
+  options: { normalizeExpiredDate?: boolean } = {},
+) => {
+  const { list, summary: amount, expiredDate } = data
+
+  if (!list?.length) {
+    popupStore.alertError({ message: 'ไม่พบข้อมูลบัญชีสำหรับทำรายการฝากเงิน' })
+    return
   }
+
+  popupStore.closeAlertPopup()
+  isTimeUp.value = false
+  step.value = 1
+  p2cDepositList.value = list
+  cashierStore.p2cRef = list[0].ref
+  summary.value = amount
+  countdown.value = useCountdownWithTemstamp(
+    options.normalizeExpiredDate
+      ? normalizeP2cExpiredDate(expiredDate)
+      : expiredDate,
+  )
+  countdown.value.startCountdown()
+}
+
+const onSubmitNumberPad = async (amountNumber: number) => {
+  amount.value = amountNumber
+  depositLoopKey.value++
+  await onSubmitDeposit()
 }
 
 // ต้องเช็คยิงซ้ำ
 const onSubmitDeposit = async () => {
-  if (form.value.errors.length) return
   try {
-    const { status, code, data, message } = await useP2cDeposit(
-      state.value.amount,
-    )
+    const { status, code, data, message } = await useP2cDeposit(amount.value)
     if (!status) {
       if (code === '60001') {
         popupStore.alertLoading({
           message,
           preventClose: true,
+          loopKey: depositLoopKey.value,
           onLooping: () => onSubmitDeposit(),
         })
       } else if (code === '60002') {
         if (data) {
-          popupStore.closeAlertPopup()
-          isFirstSelect.value = false
-          step.value = 1
-          const { list, summary: amount, expiredDate } = data
-          p2cDepositList.value = list
-          cashierStore.p2cRef = list[0].ref
-          summary.value = amount
-          countdown.value = useCountdownWithTimestamp(expiredDate)
-          countdown.value.startCountdown()
+          applyP2cDepositData(data, { normalizeExpiredDate: true })
         }
       } else {
         popupStore.alertError({ message })
@@ -315,14 +309,7 @@ const onSubmitDeposit = async () => {
     } else {
       if (data) {
         popupStore.closeAlertPopup()
-        isFirstSelect.value = false
-        step.value = 1
-        const { list, summary: amount, expiredDate } = data
-        p2cDepositList.value = list
-        cashierStore.p2cRef = list[0].ref
-        summary.value = amount
-        countdown.value = useCountdownWithTimestamp(expiredDate)
-        countdown.value.startCountdown()
+        applyP2cDepositData(data)
       }
     }
   } catch (e) {
@@ -341,6 +328,9 @@ const getInformation = async () => {
       if (data) {
         const { firstNameEN, lastNameEN } = data
         isCompleted.value = !!firstNameEN && !!lastNameEN
+        if (isCompleted.value) {
+          popupStore.openModalHowToAutopeer()
+        }
       }
     }
   } catch (e) {
@@ -372,11 +362,12 @@ const getP2cDepositStatus = async () => {
       if (!isCompleted.value) return
       if (data) {
         step.value = 1
+        isTimeUp.value = false
         const { list, summary: amount, expiredDate } = data
         p2cDepositList.value = list
         cashierStore.p2cRef = list[0].ref
         summary.value = amount
-        countdown.value = useCountdownWithTimestamp(expiredDate)
+        countdown.value = useCountdownWithTemstamp(expiredDate)
         countdown.value.startCountdown()
       }
     }
@@ -392,22 +383,6 @@ const getBase64Image = (file: string | undefined) => {
   base64Image.value = file
 }
 
-const onBlur = (event: Event) => {
-  const input = (event.target as HTMLInputElement).value
-
-  if (!input) {
-    amount.value = '0'
-    state.value.amount = 0
-    return
-  }
-
-  const amountNumber = useParseAmount().parseAmount(input)
-
-  amount.value = useParseAmount().formatAmount(amountNumber)
-
-  state.value.amount = amountNumber
-}
-
 const onSubmit = async () => {
   const imgSlip = base64Image.value
   if (imgSlip) {
@@ -419,6 +394,9 @@ const onSubmit = async () => {
       if (!status) {
         popupStore.alertError({ message: message })
       } else {
+        skipLeaveConfirm.value = true
+        cashierStore.setAutoPeerTransferPending(false)
+        step.value = 0
         resetState()
         popupStore.alertSuccess({
           title: message,
@@ -435,7 +413,20 @@ const onSubmit = async () => {
   }
 }
 
-const p2cCancelTransfer = async () => {
+const onClickCancelTransfer = () => {
+  skipLeaveConfirm.value = true
+  cashierStore.setAutoPeerTransferPending(false)
+  p2cCancelTransfer()
+}
+
+const applyPendingDepositState = (pendingState: PendingDepositState) => {
+  cashierStore.activeTab = pendingState.activeTab
+  cashierStore.idSelect = pendingState.idSelect
+  cashierStore.isSelectedChannel = pendingState.isSelectedChannel
+  pendingState.onConfirm?.()
+}
+
+const p2cCancelTransfer = async (pendingState?: PendingDepositState) => {
   try {
     const ref = [cashierStore.p2cRef]
     const { status, message } = await useP2cCancelTransfer(ref)
@@ -447,9 +438,14 @@ const p2cCancelTransfer = async () => {
         message: 'ยกเลิกรายการสำเร็จ',
         preventClose: true,
         onConfirm: () => {
+          step.value = 0
           resetState()
           cashierStore.getP2cDepositPending()
-          getP2cDepositStatus()
+          if (pendingState) {
+            applyPendingDepositState(pendingState)
+          } else {
+            cashierStore.backToMainDeposit()
+          }
         },
       })
     }
@@ -459,27 +455,75 @@ const p2cCancelTransfer = async () => {
   }
 }
 
+const confirmCancelTransferBeforeLeave = (pendingState: PendingDepositState) => {
+  popupStore.alertConfirm({
+    title: 'ยืนยันการออกจากหน้านี้',
+    message: 'หากออกจากหน้านี้ รายการฝาก AutoPeer ปัจจุบันจะถูกยกเลิก',
+    preventClose: true,
+    onConfirm: () => {
+      skipLeaveConfirm.value = true
+      cashierStore.setAutoPeerTransferPending(false)
+      p2cCancelTransfer(pendingState)
+    },
+    onCancel: () => {
+      isConfirmingLeave.value = false
+    },
+  })
+}
+
 const resetState = () => {
-  step.value = 0
   base64Image.value = undefined
-  state.value = { ...initialState }
-  isFirstSelect.value = false
   isDepositError.value = ''
   p2cDepositList.value = []
   countdown.value = null
 }
 
 watchEffect(() => {
+  cashierStore.setAutoPeerTransferPending(
+    step.value === 1 && !skipLeaveConfirm.value,
+    confirmCancelTransferBeforeLeave,
+  )
+
   if (countdown.value) {
     if (countdown.value.isTimeUp) {
+      isTimeUp.value = true
       resetState()
-      popupStore.openModalProfile()
-      popupStore.alertWarning({
-        message: t('deposit_is_time_up'),
-      })
     }
   }
 })
+
+watch(
+  () => [
+    cashierStore.activeTab,
+    cashierStore.idSelect,
+    cashierStore.isSelectedChannel,
+  ],
+  ([activeTab, idSelect, isSelectedChannel]) => {
+    const isLeavingAutoPeer =
+      activeTab !== 1 || idSelect !== 'AUTO_PEER' || !isSelectedChannel
+
+    if (
+      step.value !== 1 ||
+      skipLeaveConfirm.value ||
+      isConfirmingLeave.value ||
+      !isLeavingAutoPeer
+    ) {
+      return
+    }
+
+    const pendingState: PendingDepositState = {
+      activeTab: activeTab as number,
+      idSelect: idSelect as ChannelType,
+      isSelectedChannel: isSelectedChannel as boolean,
+    }
+
+    isConfirmingLeave.value = true
+    cashierStore.activeTab = 1
+    cashierStore.idSelect = 'AUTO_PEER'
+    cashierStore.isSelectedChannel = true
+    confirmCancelTransferBeforeLeave(pendingState)
+  },
+)
 
 onMounted(() => {
   getP2cDepositStatus()
@@ -495,5 +539,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   resetState()
+  cashierStore.setAutoPeerTransferPending(false)
 })
 </script>

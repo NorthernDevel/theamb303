@@ -8,7 +8,10 @@
       <p>กรุณาเลือกใช้ช่องทางอื่น</p>
     </div>
     <template v-else>
-      <div v-if="!isQrCode" class="w-full">
+        <div
+          v-if="!isQrCode && !cashierStore.amountIsSlipAndThpay"
+          class="w-full"
+        >
         <div class="theme-panel w-full p-4">
           <div>
             <UForm
@@ -107,7 +110,7 @@
                       color="white"
                       variant="ghost"
                       class="-my-1 justify-center absolute top-1 right-0 w-14 h-14 text-amber-200 focus-visible:ring-0"
-                      @click="resetState()"
+                      @click="onClosePopupAskmepay()"
                       ><UIcon
                         name="i-heroicons-x-mark-20-solid"
                         class="w-14 h-14"
@@ -221,6 +224,7 @@ const { t } = useI18n()
 const cashierStore = useCashierStore()
 const popupStore = usePopupStore()
 const profileStore = useProfileStore()
+const resourceStore = useResourceStore()
 const { useCurrency, useParseAmount } = useFormatter()
 const { formattedTime, startCountdown, clearCountdown, isTimeUp } =
   useCountdownWithMinSec(10, 1)
@@ -312,10 +316,9 @@ const onBlur = (event: Event) => {
   state.value.amount = amountNumber
 }
 
-const onSubmit = async () => {
-  if (form.value.errors.length) return
+const generateQrcodeAskmepay = async (depositAmount: number) => {
   const body: RequestGenQRCode = {
-    amount: state.value.amount,
+    amount: depositAmount,
     bankName: 'THPAY',
     serviceId: cashierStore.askmepaySerivce?.serviceID!,
     redirectUrl: window.location.origin,
@@ -326,9 +329,28 @@ const onSubmit = async () => {
 
   try {
     isLoading.value = true
-    const { status, data, message } = await useGenerateQrcodeAskmepay(body)
+    const { status, data, message, code } =
+      await useGenerateQrcodeAskmepay(body)
     if (!status) {
-      popupStore.alertError({ message: message })
+      if (String(code) === '9900') {
+        if (resourceStore.isDeposit.isAutoSlip) {
+          cashierStore.idSelect = 'AUTO_SLIP'
+          cashierStore.isSelectedChannel = true
+          return
+        }
+
+        popupStore.alertError({
+          preventClose: true,
+          message: 'จำนวนฝากขั้นต่ำไม่ถูกต้อง กรุณาใช้ช่องทางฝากอื่น',
+          onCancel: () => cashierStore.backToMainDeposit(),
+        })
+      } else {
+        popupStore.alertError({
+          preventClose: true,
+          message: message,
+          onCancel: () => cashierStore.goExpressDeposit(),
+        })
+      }
     } else {
       if (data) {
         qrCodeData.value = data
@@ -346,6 +368,25 @@ const onSubmit = async () => {
   }
 }
 
+const onSubmit = async () => {
+  if (form.value.errors.length) return
+  await generateQrcodeAskmepay(state.value.amount)
+}
+
+const onCancelPopupAskmepay = () => {
+  resetState()
+  popupStore.alertSuccess({
+    message: 'ยกเลิกรายการฝากสำเร็จ',
+    preventClose: true,
+    onConfirm: () => cashierStore.backToMainDeposit(),
+  })
+}
+
+const onClosePopupAskmepay = () => {
+  resetState()
+  cashierStore.goDepositHistory()
+}
+
 const resetState = () => {
   qrCodeData.value = undefined
   isQrCode.value = false
@@ -354,6 +395,11 @@ const resetState = () => {
 }
 
 onMounted(() => {
+  if (cashierStore.amountIsSlipAndThpay) {
+    generateQrcodeAskmepay(cashierStore.amountIsSlipAndThpay)
+    return
+  }
+
   cashierStore.getP2cDepositPending()
 })
 

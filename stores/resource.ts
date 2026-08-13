@@ -127,6 +127,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
       return {
         isAskmepay: false,
         isAuto: false,
+        isAutoPeer: false,
         isAutoSlip: false,
         isDecimal: false,
         isManualSlip: false,

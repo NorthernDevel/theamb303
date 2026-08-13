@@ -13,7 +13,7 @@
     />
     <p
       :class="[isActive(item.to) && '!text-gray-50']"
-      class="text-center lg:text-left text-xs md:text-sm lg:text-base text-gray-500"
+      class="text-center lg:text-left text-[10px] md:text-sm lg:text-base text-gray-500"
     >
       {{ $t(item.label) }}
     </p>

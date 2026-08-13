@@ -42,6 +42,26 @@ module.exports = {
             transform: 'translateY(-2px)',
           },
         },
+        blinkGlowRed: {
+          '0%, 100%': {
+            backgroundColor: '#ef4444',
+            boxShadow: '0 0 5px #ef4444',
+          },
+          '50%': {
+            backgroundColor: '#7f1d1d',
+            boxShadow: '0 0 20px #7f1d1d',
+          },
+        },
+        blinkGlowGreen: {
+          '0%, 100%': {
+            backgroundColor: '#10b981',
+            boxShadow: '0 0 5px #10b981',
+          },
+          '50%': {
+            backgroundColor: '#047857',
+            boxShadow: '0 0 20px #047857',
+          },
+        },
       },
       animation: {
         'up-and-down': 'upAndDown 3s infinite',
@@ -49,6 +69,8 @@ module.exports = {
         'spin-fast': 'spin 1s linear infinite',
         'scroll-left': 'scroll-left 50s linear infinite',
         'mini-bounce': 'mini-bounce 3s infinite',
+        blinkGlowRed: 'blinkGlowRed 1.2s ease-in-out infinite',
+        blinkGlowGreen: 'blinkGlowGreen 1.2s ease-in-out infinite',
       },
     },
   },

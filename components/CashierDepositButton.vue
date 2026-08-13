@@ -1,10 +1,12 @@
 <template>
-  <div @click="onSelectedChannel(item.to)">
-      <CashierDepositButtonItem
-        :item="item"
-        :size="size"
-      />
-    </div>
+  <button
+    v-if="item.enabled"
+    type="button"
+    class="w-full text-left"
+    @click="onSelectedChannel(item.to)"
+  >
+    <CashierDepositButtonItem :item="item" :size="size" />
+  </button>
 </template>
 
 <script lang="ts" setup>
@@ -13,10 +15,12 @@ const cashierStore = useCashierStore()
 type Item = {
   name: string
   label: string
+  description: string
   image: string
-  to: string
+  to: ChannelType
   recommend: boolean
   recommend_label: string
+  enabled: boolean
 }
 defineProps({
   item: {
@@ -29,7 +33,7 @@ defineProps({
   },
 })
 
-const onSelectedChannel = (id: string) => {
+const onSelectedChannel = (id: ChannelType) => {
   cashierStore.idSelect = id
   cashierStore.isSelectedChannel = true
 }

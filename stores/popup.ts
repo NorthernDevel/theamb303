@@ -18,6 +18,7 @@ export type PopupProps = {
   onConfirm?: () => void
   onCancel?: () => void
   onLooping?: () => void
+  loopKey?: number
 }
 
 type QueryString = {
@@ -40,6 +41,7 @@ export const usePopupStore = defineStore('popupStore', {
       isOpenModalRegister: false,
       isOpenModalContact: false,
       isOpenModalPrediction: false,
+      isOpenModalHowToAutopeer: false,
       isOpenPopupNotLogin: false,
       isOpenPopupLoggedIn: false,
       refId: '',
@@ -95,6 +97,12 @@ export const usePopupStore = defineStore('popupStore', {
     },
     closeModalContact() {
       this.isOpenModalContact = false
+    },
+    openModalHowToAutopeer() {
+      this.isOpenModalHowToAutopeer = true
+    },
+    closeModalHowToAutopeer() {
+      this.isOpenModalHowToAutopeer = false
     },
     openModalPrediction() {
       this.isOpenModalPrediction = true

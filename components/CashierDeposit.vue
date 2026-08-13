@@ -1,30 +1,38 @@
 <template>
   <div class="w-full">
-    <UDivider
-      :ui="{ border: { base: 'dark:bg-emerald-700' } }"
-      label="ช่องทางการฝากเงิน"
-      size="sm"
-      class="mt-4"
-    />
-    <div class="grid grid-cols-2 place-items-center mt-4">
-      <CashierDepositButton
-        v-for="item in cashierStore.depositMenu"
-        :item="item"
-        color="blue"
-        size="w-32 sm:w-36 h-14 sm:h-16"
+    <template v-if="!cashierStore.isSelectedChannel">
+      <UDivider
+        :ui="{ border: { base: 'dark:bg-emerald-700' } }"
+        label="ช่องทางการฝากเงิน"
+        size="sm"
+        class="mt-4"
       />
-    </div>
-    <UDivider :label="$t(title)" size="sm" class="mt-4" />
-    <div class="py-2 px-2 w-full">
-      <CashierDepositChannelThPay v-if="cashierStore.idSelect === 'THPAY'" />
-      <CashierDepositChannelAutoPeer
-        v-else-if="cashierStore.idSelect === 'AUTO_PEER'"
-      />
-      <CashierDepositChannelWithDecimal
-        v-else-if="cashierStore.idSelect === 'DECIMAL'"
-      />
-      <CashierDepositChannelTransfer v-else />
-    </div>
+      <div class="flex flex-col gap-2 mt-4">
+        <CashierDepositButton
+          v-for="item in cashierStore.depositMenu"
+          :key="item.to"
+          :item="item"
+          color="yellow"
+          size="w-full min-h-20"
+        />
+      </div>
+    </template>
+
+    <template v-else>
+      <UDivider :label="$t(title)" size="sm" class="mt-4" />
+      <div class="py-2 px-2 w-full">
+        <CashierDepositChannelAutoPeer
+          v-if="cashierStore.idSelect === 'AUTO_PEER'"
+        />
+        <CashierDepositChannelWithDecimal
+          v-else-if="cashierStore.idSelect === 'DECIMAL'"
+        />
+        <CashierDepositChannelTransfer
+          v-else-if="cashierStore.idSelect === 'AUTO_SLIP'"
+        />
+        <CashierDepositChannelExpress v-else />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -38,20 +46,21 @@ const title = computed(() => {
     case 'AUTO_SLIP':
       return 'deposit_auto_slip'
     case 'AUTO_PEER':
-      return 'deposit_auto_peer'
+      return 'ฝาก-ถอน ระหว่างผู้ใช้โดยตรง'
     case 'THPAY':
-      return 'ฝากเงินแบบรวดเร็วผ่าน THPAY'
+      return 'ฝากเงินรวดเร็วผ่านคิวอาร์โค้ด หรือ สแกนฝากเงิน'
     case 'TRUEWALLET':
       return 'deposit_truemoney'
     case 'DECIMAL':
       return 'deposit_decimal'
+    case 'EXPRESS_DEPOSIT':
+      return 'deposit_express'
     default:
-      return 'deposit_auto_slip'
+      return 'deposit_express'
   }
 })
 
 onMounted(() => {
-  cashierStore.idSelect = 'AUTO_SLIP'
-  cashierStore.isSelectedChannel = true
+  cashierStore.isSelectedChannel = false
 })
 </script>

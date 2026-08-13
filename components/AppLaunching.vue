@@ -127,7 +127,7 @@
 
   <div v-if="authStore.isAuthenticated">
     <div class="flex items-center justify-center gap-4 mt-4 sm:mt-6 mb-2">
-      <div class="group" @click="cashierStore.openWithdrawFromPage()">
+      <div class="group" @click="cashierStore.openDepositFromPage()">
         <div
           class="theme-deposit-btn relative w-36 sm:w-44 lg:w-52 h-14 sm:h-16 lg:h-20 p-2 flex flex-nowrap items-center justify-center gap-1 menu-btn-inactive"
         >

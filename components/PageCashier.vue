@@ -126,7 +126,7 @@
 
     <div class="flex flex-col items-center justify-center">
       <LazyUTabs
-        v-model="cashierStore.activeTab"
+        v-model="activeTab"
         :items="cashierStore.tabList"
         class="w-full b"
       >
@@ -177,6 +177,27 @@ const initialState: RequestUpdateBank = {
 
 const state = ref({
   ...initialState,
+})
+
+const activeTab = computed({
+  get: () => cashierStore.activeTab,
+  set: (value: number) => {
+    if (
+      cashierStore.isAutoPeerTransferPending &&
+      cashierStore.activeTab === 1 &&
+      value !== cashierStore.activeTab &&
+      cashierStore.confirmAutoPeerLeave
+    ) {
+      cashierStore.confirmAutoPeerLeave({
+        activeTab: value,
+        idSelect: cashierStore.idSelect,
+        isSelectedChannel: cashierStore.isSelectedChannel,
+      })
+      return
+    }
+
+    cashierStore.activeTab = value
+  },
 })
 
 const updateBankSchema = z.object({

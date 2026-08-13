@@ -164,3 +164,62 @@ export const useCountdownWithTimestamp = (timestamp: string) => {
     restartCountdown,
   }
 }
+
+export const useCountdownWithTemstamp = (timestamp: string) => {
+  const localTimestamp = timestamp.replace(/\sUTC(?:[+-]\d{1,2})?$/, '')
+  const now = dayjs()
+  const target = dayjs(localTimestamp)
+
+  const remainingSeconds = ref<number>(Math.max(target.diff(now, 'second'), 0))
+
+  const minutes = computed(() => Math.floor(remainingSeconds.value / 60))
+  const seconds = computed(() => remainingSeconds.value % 60)
+
+  const formattedTime = computed(() => {
+    const m = String(minutes.value).padStart(2, '0')
+    const s = String(seconds.value).padStart(2, '0')
+    return `${m}:${s}`
+  })
+
+  const isTimeUp = computed(() => remainingSeconds.value <= 0)
+
+  const tick = () => {
+    const diff = target.diff(dayjs(), 'second')
+    remainingSeconds.value = Math.max(diff, 0)
+
+    if (diff <= 0) {
+      clearCountdown()
+    }
+  }
+
+  const startCountdown = () => {
+    tick()
+
+    if (countdownInterval !== undefined) {
+      clearInterval(countdownInterval)
+    }
+
+    countdownInterval = setInterval(tick, 1000)
+  }
+
+  const clearCountdown = () => {
+    if (countdownInterval !== undefined) {
+      clearInterval(countdownInterval)
+      countdownInterval = undefined
+    }
+  }
+
+  const restartCountdown = () => {
+    remainingSeconds.value = Math.max(target.diff(dayjs(), 'second'), 0)
+    clearCountdown()
+    startCountdown()
+  }
+
+  return {
+    formattedTime,
+    isTimeUp,
+    startCountdown,
+    clearCountdown,
+    restartCountdown,
+  }
+}

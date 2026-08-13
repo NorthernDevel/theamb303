@@ -8,8 +8,14 @@
         v-if="!depositBank.length"
         class="theme-error-box w-full flex flex-col justify-center items-center text-center"
       >
-        <p>ขณะนี้ระบบ {{ $t(title) }} ปิดให้บริการ</p>
-        <p>กรุณาเลือกใช้ช่องทางอื่น</p>
+        <template v-if="cashierStore.idSelect === 'AUTO_SLIP'">
+          <p>ขณะนี้ระบบ ฝากเงินด่วน ปิดให้บริการชั่วคราว</p>
+          <p>กรุณาเลือกใช้ช่องทางอื่นในการฝากชั่วคราวก่อนนะค่ะ</p>
+        </template>
+        <template v-else>
+          <p>ขณะนี้ระบบ {{ $t(title) }} ปิดให้บริการ</p>
+          <p>กรุณาเลือกใช้ช่องทางอื่น</p>
+        </template>
       </div>
       <div v-else>
         <div class="theme-panel w-full mb-2 px-3 py-2">
@@ -126,6 +132,14 @@
         :disabled="isLoading"
         >{{ $t('btn_apply') }}</UButton
       >
+
+      <UButton
+        type="button"
+        class="theme-danger-btn w-full h-12 justify-center text-lg mt-4 mb-4"
+        @click="cashierStore.onCancelDeposit()"
+      >
+        ยกเลิกรายการฝาก
+      </UButton>
     </div>
   </div>
 </template>
@@ -234,7 +248,15 @@ const onSubmit = async () => {
         ? SlipType.AUTO_SLIP
         : SlipType.MANUAL_SLIP
     const dateTime = dayjs().format('DD/MM/YYYY HH:mm')
-    const body = { imgSlip, type, dateTime, amount: amount.value }
+    const body = {
+      imgSlip,
+      type,
+      dateTime,
+      amount:
+        cashierStore.idSelect === 'MANUAL_SLIP'
+          ? amount.value
+          : cashierStore.amountIsSlipAndThpay,
+    }
     try {
       isLoading.value = true
       const { status, message } = await useUploadSlip(body)
