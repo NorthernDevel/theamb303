@@ -18,7 +18,7 @@
     </div>
 
     <div
-      v-if="!isDisbled"
+      v-if="!isDisabled"
       class="theme-panel w-full p-4"
     >
       <UForm
@@ -52,7 +52,7 @@
             inputmode="numeric"
             v-model="amount"
             v-on:blur="onBlur"
-            :disabled="isDisbled"
+            :disabled="isDisabled"
           >
             <template #trailing>
               <span class="text-amber-200/70 text-xs">{{
@@ -66,14 +66,14 @@
           type="submit"
           class="theme-primary-btn w-full h-12 justify-center text-lg mt-2"
           :loading="isLoading"
-          :disabled="isDisbled"
+          :disabled="isDisabled"
         >
           {{ $t('request_withdraw') }}
         </UButton>
       </UForm>
     </div>
     <p
-      v-if="!isLoading && isDisbled"
+      v-if="!isLoading && isDisabled"
       class="theme-error-box w-full text-center"
     >
       {{ dataMessage }}
@@ -92,7 +92,7 @@ const popupStore = usePopupStore()
 
 const form = ref()
 const isLoading = ref(false)
-const isDisbled = ref(true)
+const isDisabled = ref(true)
 const amount = ref('0')
 const minWithdraw = ref(100)
 const maxWithdraw = ref(50000)
@@ -154,13 +154,18 @@ const withdrawSchema = z.object({
 const getConditionWithdraw = async () => {
   try {
     isLoading.value = true
-    const { status, data, message } = await useConditionWithdraw()
+    const { status, data, message, code } = await useConditionWithdraw()
     if (!status) {
-      popupStore.alertError({ message })
+      if (code === '100033') {
+        isDisabled.value = true
+        dataMessage.value = message
+      } else {
+        popupStore.alertError({ message })
+      }
     } else {
       if (data) {
         const { disableBtn, minWithdrawAmount, maxWithdrawAmount } = data
-        isDisbled.value = disableBtn
+        isDisabled.value = disableBtn
         minWithdraw.value = minWithdrawAmount
         maxWithdraw.value = maxWithdrawAmount
         dataMessage.value = data?.message || t('unable_withdraw')

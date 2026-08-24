@@ -56,8 +56,9 @@ export const useDecimalDepositTrans = async () => {
 // NOTE: -------------- WITHDRAW --------------
 export const useConditionWithdraw = async () => {
   const { code, message, data } = await services.checkConditionWithdraw()
-  if (!code || code != '0') return { status: false, data: undefined, message }
-  return { status: true, data, message }
+  if (!code || code != '0')
+    return { status: false, data: undefined, message, code }
+  return { status: true, data, message, code }
 }
 
 export const useWithdraw = async (body: RequestWithdraw) => {
